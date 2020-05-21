@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using Microsoft.Azure.CognitiveServices.Vision.ComputerVision;
 
 namespace MyDemo1
@@ -17,13 +18,11 @@ namespace MyDemo1
                 new ApiKeyServiceClientCredentials(cognitiveServicesKey));
             client.Endpoint = cognitiveServicesUrl;
 
-            var fileToProcess = File.OpenRead(@"c:\temp\mybill.jpg");
+            var location = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            var fileName = Path.Combine(location, "mybill.jpg");
+            var fileToProcess = File.OpenRead(fileName);
             var apiResult = client.RecognizePrintedTextInStreamAsync(false, fileToProcess);
             apiResult.Wait();
-
-    //        Console.WriteLine($"Found word {w.Text} at" +
-    //$" X {coordinates[0]} and Y {coordinates[1]}");
-
 
             var ocrResult = apiResult.Result;
 
@@ -36,6 +35,10 @@ namespace MyDemo1
                     foreach (var w in l.Words)
                     {
                         var coordinates = w.BoundingBox.Split(',');
+
+                        //Console.WriteLine($"Found word {w.Text} at" +
+                        //$" X {coordinates[0]} and Y {coordinates[1]}");
+
                         words.Add(new System.Drawing.Point
                         {
                             X = int.Parse(coordinates[0]),
